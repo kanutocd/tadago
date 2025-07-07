@@ -45,7 +45,17 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}
-	
+
+	// Auto-migrate tables
+	if err := database.Migrate(db); err != nil {
+		log.Fatal("Failed to migrate database:", err)
+	}
+
+	// Seed database
+	if err := database.Seed(db); err != nil {
+		log.Fatal("Failed to seed database:", err)
+	}
+
 	// Initialize repositories
 	userRepo := repository.NewUserRepository(db)
 	tadaRepo := repository.NewTadaRepository(db)
