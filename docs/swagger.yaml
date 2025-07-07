@@ -1,0 +1,457 @@
+basePath: /api/v1
+definitions:
+  domain.TadaStatus:
+    enum:
+    - in_progress
+    - cancelled
+    - completed
+    type: string
+    x-enum-varnames:
+    - StatusInProgress
+    - StatusCancelled
+    - StatusCompleted
+  dto.CreateTadaRequest:
+    properties:
+      assigned_to:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      due_at:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.TadaStatus'
+        enum:
+        - in_progress
+        - cancelled
+        - completed
+    required:
+    - created_by
+    - name
+    type: object
+  dto.CreateUserRequest:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    required:
+    - email
+    - name
+    type: object
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.PaginationMeta:
+    properties:
+      count:
+        type: integer
+      limit:
+        type: integer
+      next_cursor:
+        type: string
+    type: object
+  dto.PaginationResponse:
+    properties:
+      data: {}
+      pagination:
+        $ref: '#/definitions/dto.PaginationMeta'
+    type: object
+  dto.TadaResponse:
+    properties:
+      assigned_to:
+        type: string
+      assignee:
+        $ref: '#/definitions/dto.UserResponse'
+      completed_at:
+        type: string
+      created_at:
+        type: string
+      created_by:
+        type: string
+      creator:
+        $ref: '#/definitions/dto.UserResponse'
+      description:
+        type: string
+      due_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      status:
+        $ref: '#/definitions/domain.TadaStatus'
+      updated_at:
+        type: string
+    type: object
+  dto.UpdateTadaRequest:
+    properties:
+      assigned_to:
+        type: string
+      description:
+        type: string
+      due_at:
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/domain.TadaStatus'
+        enum:
+        - in_progress
+        - cancelled
+        - completed
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      email:
+        maxLength: 255
+        type: string
+      name:
+        maxLength: 255
+        minLength: 1
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A simple Todo API application
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Tada API
+  version: "1.0"
+paths:
+  /tadas:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of tadas
+      parameters:
+      - description: Pagination cursor
+        in: query
+        name: cursor
+        type: string
+      - default: 10
+        description: Items per page (1-100)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get tadas with pagination
+      tags:
+      - tadas
+    post:
+      consumes:
+      - application/json
+      description: Create a new tada task
+      parameters:
+      - description: Tada creation data
+        in: body
+        name: tada
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTadaRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.TadaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create a new tada
+      tags:
+      - tadas
+  /tadas/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete tada by ID
+      parameters:
+      - description: Tada ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete tada
+      tags:
+      - tadas
+    get:
+      consumes:
+      - application/json
+      description: Get tada details by ID
+      parameters:
+      - description: Tada ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TadaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get tada by ID
+      tags:
+      - tadas
+    put:
+      consumes:
+      - application/json
+      description: Update tada details
+      parameters:
+      - description: Tada ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tada update data
+        in: body
+        name: tada
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTadaRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TadaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Update tada
+      tags:
+      - tadas
+  /users:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a paginated list of users
+      parameters:
+      - description: Pagination cursor
+        in: query
+        name: cursor
+        type: string
+      - default: 10
+        description: Items per page (1-100)
+        in: query
+        maximum: 100
+        minimum: 1
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PaginationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get users with pagination
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account
+      parameters:
+      - description: User creation data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Create a new user
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Delete user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: Get user details by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get user by ID
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update user details
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Update user
+      tags:
+      - users
+swagger: "2.0"
