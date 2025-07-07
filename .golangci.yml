@@ -1,0 +1,46 @@
+run:
+  timeout: 5m
+  tests: true
+  skip-dirs:
+    - vendor
+    - docs
+
+linters:
+  enable-all: true
+  disable:
+    - exhaustivestruct
+    - exhaustruct
+    - golint
+    - interfacer
+    - maligned
+    - scopelint
+    - varcheck
+    - deadcode
+    - structcheck
+    - nosnakecase
+    - ifshort
+
+linters-settings:
+  gocyclo:
+    min-complexity: 15
+
+  misspell:
+    locale: US
+
+  lll:
+    line-length: 140
+
+issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gomnd
+        - goconst
+        - funlen
+        - dupl
+    - path: cmd/
+      linters:
+        - gomnd
+
+  max-issues-per-linter: 0
+  max-same-issues: 0
